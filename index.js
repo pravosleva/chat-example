@@ -7,15 +7,19 @@ let app = require('express')(),
 app.get('/', function(req, res){ res.sendFile(__dirname + '/index.html'); });
 
 io.on('connection', function(socket){
-  io.emit('chat message', {msg: (socket.id + " connected...")});
+  clients.push({ socketId: socket.id });//console.log("Users: " + clients.length);
 
-  socket.on('chat message', function(obj){
-    io.emit('chat message', obj);
+  io.emit('CLIENT_CONNECTED_OR_DISCONNECTED', { msg: (socket.id + " connected!"), name: "service bot", total: clients.length });
+
+  socket.on('CHAT_MESSAGE', function(obj){//console.log("New message from " + obj.name + "...");
+    io.emit('CHAT_MESSAGE', obj);
   });
 
   socket.on('disconnect', function(){
-    let msg = socket.id + " disconnected...";
-    io.emit('chat message', { msg: msg } );
+    clients = clients.filter(function(client, i){ return (socket.id !== client.socketId) }, this);
+    //console.log("Users after disconnect: " + clients.length);
+    //io.emit('CHAT_MESSAGE', { msg: (socket.id + " disconnected..."), name: "service bot" } );
+    io.emit('CLIENT_CONNECTED_OR_DISCONNECTED', { msg: (socket.id + " disconnected..."), name: "service bot", total: clients.length });
   });
 });
 

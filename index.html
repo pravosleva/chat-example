@@ -16,10 +16,23 @@
 			*/
 
 			body { margin-bottom: 20px }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages { list-style-type: none; margin: 0; padding: 0; font-family: Courier;}
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
       #messages { margin-bottom: 20px }
+
+      #total { position: fixed;
+        font-size: 20px;
+        opacity: 0.35;
+        top: 18px;
+        right: 10px;
+        z-index: 100;
+        padding: 5px;
+        background-color: rgb(66, 139, 202);
+        color: white;
+        border-radius: 4px;
+        cursor: default;
+      }
     </style>
 		<script>
 			let myNotification = function (titleNotify, optionsNotify) {
@@ -43,15 +56,15 @@
 
     <div class="container">
 			<h1>Socket.IO chat test</h1>
+      <span id="total"></span>
 			<hr />
 			<ul id="messages"></ul>
-			<form action="">
-				<div class="input-group col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
-					<input id="m" autocomplete="off" class="form-control" />
-					<span class="input-group-btn">
-						<button class="btn btn-primary">Send</button>
-					</span>
+			<form action="" class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
+				<div class="input-group">
+					<input id="m" autocomplete="off" class="form-control" placeholder="Enter your message..." />
+					<span class="input-group-btn"><button class=" btn btn-primary">Send</button></span>
 				</div>
+        <input id="uName" autocomplete="off" class="form-control" placeholder="Enter your name..." style="margin-top: 10px;" />
 			</form>
 		</div>
 
@@ -61,18 +74,30 @@
       $(function () {
         var socket = io();
         $('form').submit(function(){
-          socket.emit('chat message', {msg: $('#m').val() });
+          socket.emit('CHAT_MESSAGE', {msg: $('#m').val(), name: $('#uName').val() });
           $('#m').val('');
           return false;
         });
-        socket.on('chat message', function(obj){
-          //console.log(msg);
+
+        socket.on('CHAT_MESSAGE', function(obj){
+          let d = new Date(),
+          datetext = d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
+
 					if(obj.msg!==""){
-						$('#messages').append($('<li>').text(obj.msg));
+						$('#messages').append($('<li>').text("[" + datetext + "] " + obj.name + ": " + obj.msg));
 						window.scrollTo(0, document.body.scrollHeight);
 
-						//myNotification("New msg", { body: obj.msg });
+						if(obj.name !== $('#uName').val()){ myNotification(("New msg by " + obj.name), { body: obj.msg }); }
 					}else{console.log("obj.msg is empty...")}
+        });
+
+        socket.on('CLIENT_CONNECTED_OR_DISCONNECTED', function(obj){
+          let d = new Date(),
+          datetext = d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
+					$('#messages').append($('<li style="color:blue">').text(`[${datetext}] ${obj.name}: ${obj.msg}`));
+          $('#total').text("Connected now: " + obj.total);
+
+					window.scrollTo(0, document.body.scrollHeight);
         });
       });
     </script>
