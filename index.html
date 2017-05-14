@@ -14,7 +14,7 @@
       form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
       form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
 			*/
-			
+
 			body { margin-bottom: 20px }
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
@@ -40,7 +40,7 @@
 		</script>
   </head>
   <body>
-	
+
     <div class="container">
 			<h1>Socket.IO chat test</h1>
 			<hr />
@@ -54,24 +54,25 @@
 				</div>
 			</form>
 		</div>
-		
+
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       $(function () {
         var socket = io();
         $('form').submit(function(){
-          socket.emit('chat message', $('#m').val());
+          socket.emit('chat message', {msg: $('#m').val() });
           $('#m').val('');
           return false;
         });
-        socket.on('chat message', function(msg){
-					if(msg!==""){
-						$('#messages').append($('<li>').text(msg));
+        socket.on('chat message', function(obj){
+          //console.log(msg);
+					if(obj.msg!==""){
+						$('#messages').append($('<li>').text(obj.msg));
 						window.scrollTo(0, document.body.scrollHeight);
-						
-						myNotification("New msg", { body: msg });
-					}else{console.log("msg is empty...")}
+
+						//myNotification("New msg", { body: obj.msg });
+					}else{console.log("obj.msg is empty...")}
         });
       });
     </script>
