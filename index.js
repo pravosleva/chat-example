@@ -18,7 +18,6 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     clients = clients.filter(function(client, i){ return (socket.id !== client.socketId) }, this);
     //console.log("Users after disconnect: " + clients.length);
-    //io.emit('CHAT_MESSAGE', { msg: (socket.id + " disconnected..."), name: "service bot" } );
     io.emit('CLIENT_CONNECTED_OR_DISCONNECTED', { msg: (socket.id + " disconnected..."), name: "service bot", total: clients.length });
   });
 });

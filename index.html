@@ -36,17 +36,11 @@
     </style>
 		<script>
 			let myNotification = function (titleNotify, optionsNotify) {
-				if (!('Notification' in window)) {
-					alert('Ваш браузер не поддерживает уведомления рабочего стола');
-				}
-				else if (Notification.permission === 'granted') {
-					var notification = new Notification(titleNotify, optionsNotify);
-				}
+				if (!('Notification' in window)) { alert('Ваш браузер не поддерживает уведомления рабочего стола'); }
+				else if (Notification.permission === 'granted') { let notification = new Notification(titleNotify, optionsNotify); }
 				else if (Notification.permission !== 'denied') {
 					Notification.requestPermission(function (permission) {
-						if (permission === 'granted') {
-							var notification = new Notification(titleNotify, optionsNotify);
-						}
+						if (permission === 'granted') { let notification = new Notification(titleNotify, optionsNotify); }
 					});
 				}
 			};
@@ -79,12 +73,21 @@
           return false;
         });
 
+        function getCurrentTime() {
+          let datetime = new Date(),
+            hours = datetime.getHours(),
+            minutes = datetime.getMinutes(),
+            seconds = datetime.getSeconds();
+          if (hours < 10) hours = '0' + hours;
+          if (minutes < 10) minutes = '0' + minutes;
+          if (seconds < 10) seconds = '0' + seconds;
+          return (hours + ':' + minutes + ':' + seconds);
+        }
+
         socket.on('CHAT_MESSAGE', function(obj){
-          let d = new Date(),
-          datetext = d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
 
 					if(obj.msg!==""){
-						$('#messages').append($('<li>').text("[" + datetext + "] " + obj.name + ": " + obj.msg));
+						$('#messages').append($('<li>').text("[" + getCurrentTime() + "] " + obj.name + ": " + obj.msg));
 						window.scrollTo(0, document.body.scrollHeight);
 
 						if(obj.name !== $('#uName').val()){ myNotification(("New msg by " + obj.name), { body: obj.msg }); }
@@ -92,9 +95,7 @@
         });
 
         socket.on('CLIENT_CONNECTED_OR_DISCONNECTED', function(obj){
-          let d = new Date(),
-          datetext = d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
-					$('#messages').append($('<li style="color:blue">').text(`[${datetext}] ${obj.name}: ${obj.msg}`));
+					$('#messages').append($('<li style="color:blue">').text(`[${getCurrentTime()}] ${obj.name}: ${obj.msg}`));
           $('#total').text("Connected now: " + obj.total);
 
 					window.scrollTo(0, document.body.scrollHeight);
